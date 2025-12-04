@@ -7,6 +7,7 @@ const verifyToken = require('./middlewares/verifiToken');
 const logger = require('./logger');
 const swaggerFile = require('./swagger.json');
 const swaggerUi = require('swagger-ui-express');
+const notificar = require('./helpers/webhook.js')
 
 const app = express();
 app.use(express.json());
@@ -115,12 +116,14 @@ app.post('/auth/login', loginLimiter, (req, res) => {
     usuario = { id: 2, nombre: 'Usuario' };
   } else {
     logger.info('Login fallido', { email });
+    notificar('autenticación fallida', `Autenticación fallida para el ${usuario.nombre}, ${email}`, 1);
     res.status(401).json({ error: 'Credenciales inválidas' });
   }
 
   const token = jwt.sign({id: usuario.id, nombre: usuario.nombre, email}, SECRET_KEY, { expiresIn: '1h' });
   loggedToken = token;
   logger.info('Login exitoso', { email, usuario});
+  notificar('Login exitoso', { email, usuario}, 1);
   res.json({token, usuario});
 });
 
@@ -167,7 +170,6 @@ v1Router.post('/productos', apiLimiter, (req, res) => {
   if (!nombre || !precio) {
     return sendResponse(res, { error: 'Nombre y precio requeridos' }, 400, req.requestedFormat);
   }
-
   const nuevoProducto = {
     id: siguienteId++,
     nombre,
@@ -176,9 +178,10 @@ v1Router.post('/productos', apiLimiter, (req, res) => {
     stock: 0,
     activo: true
   };
-
+  
   productos.push(nuevoProducto);
   logger.info('Producto creado (API V1)', { nuevoProducto });
+  notificar("creación de productos (API V1)", nuevoProducto, 1);
   sendResponse(res, { mensaje: 'Producto creado', producto: nuevoProducto }, 201, req.requestedFormat);
 });
 
@@ -323,6 +326,7 @@ v2Router.put('/productos/:id', apiLimiter, verifyToken, (req, res) => {
     fechaActualizacion: new Date().toISOString()
   };
   logger.info('Producto actualizado (API V2)', { producto: productos[indice] });
+  notificar('Producto actualizado (API V2)', { producto: productos[indice] }, 1);
   sendResponse(res, {
     success: true,
     message: 'Producto actualizado',
@@ -340,6 +344,7 @@ v2Router.delete('/productos/:id', apiLimiter, verifyToken, (req, res) => {
 
   const productoEliminado = productos.splice(indice, 1)[0];
   logger.info('Producto eliminado (API V2)', { producto: productoEliminado });
+  notificar('Producto eliminado (API V2)', { producto: productoEliminado }, 1);
   sendResponse(res, {
     success: true,
     message: 'Producto eliminado',
