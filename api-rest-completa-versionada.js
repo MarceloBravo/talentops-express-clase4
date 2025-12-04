@@ -5,9 +5,12 @@ const jwt = require('jsonwebtoken');
 const createRateLimiter = require('./middlewares/rate-limit');
 const verifyToken = require('./middlewares/verifiToken');
 const logger = require('./logger');
+const swaggerFile = require('./swagger.json');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 app.use(express.json());
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 
 const SECRET_KEY = process.env.JWT_SECRET_KEY;
 

@@ -3,4 +3,4 @@
 - rate limiting, 
 - logging de operaciones, 
 - documentación OpenAPI automática, y 
-- un sistema de webhooks para notificar cambios en productos.
+- un sistema de webhooks para notificar cambios en productos.x.
