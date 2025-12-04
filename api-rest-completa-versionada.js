@@ -1,7 +1,19 @@
 // api-rest-completa-versionada.js
+require('dotenv').config();
 const express = require('express');
+const jwt = require('jsonwebtoken');
+const createRateLimiter = require('./middlewares/rate-limit');
+const verifyToken = require('./middlewares/verifiToken');
 const app = express();
 app.use(express.json());
+
+const SECRET_KEY = process.env.JWT_SECRET_KEY;
+
+
+// Limite de 5 intentos de login en 15 minutos
+const loginLimiter = createRateLimiter(15 * 60 * 1000, 5, (req, res) => req.t('rateLimit.login'));
+// Límite de 100 peticiones en 15 minutos
+const apiLimiter = createRateLimiter(15 * 60 * 1000, 100, (req, res) => req.t('rateLimit.default'));
 
 // Base de datos simulada
 let productos = [
@@ -87,8 +99,29 @@ function createVersionedRouter(version) {
 const v1Router = createVersionedRouter('v1');
 const v2Router = createVersionedRouter('v2');
 
+// Ruta de login simulada
+app.post('/auth/login', loginLimiter, (req, res) => {
+  const { email, password } = req.body;
+  let usuario = null;
+
+  if (email === 'admin@example.com' && password === 'admin123') {
+    //logger.info('Login exitoso', { email, usuarioId: 1 });
+    usuario = { id: 1, nombre: 'Admin'};
+  } else if (email === 'user@example.com' && password === 'user123') {
+    //logger.info('Login exitoso', { email, usuarioId: 2 });
+    usuario = { id: 2, nombre: 'Usuario' };
+  } else {
+    //logger.info('Login fallido', { email });
+    res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+
+  const token = jwt.sign({id: usuario.id, nombre: usuario.nombre, email}, SECRET_KEY, { expiresIn: '1h' });
+  loggedToken = token;
+  res.json({token, usuario});
+});
+
 // API V1 - Básica
-v1Router.get('/productos', (req, res) => {
+v1Router.get('/productos', apiLimiter, (req, res) => {
   const { categoria } = req.query;
   let resultados = productos;
 
@@ -105,7 +138,7 @@ v1Router.get('/productos', (req, res) => {
   }, 200, req.requestedFormat);
 });
 
-v1Router.get('/productos/:id', (req, res) => {
+v1Router.get('/productos/:id', apiLimiter, (req, res) => {
   const id = parseInt(req.params.id);
   const producto = productos.find(p => p.id === id);
 
@@ -120,7 +153,7 @@ v1Router.get('/productos/:id', (req, res) => {
   }, 200, req.requestedFormat);
 });
 
-v1Router.post('/productos', (req, res) => {
+v1Router.post('/productos', apiLimiter, (req, res) => {
   const { nombre, precio } = req.body;
 
   if (!nombre || !precio) {
@@ -141,7 +174,7 @@ v1Router.post('/productos', (req, res) => {
 });
 
 // API V2 - Avanzada
-v2Router.get('/productos', (req, res) => {
+v2Router.get('/productos', apiLimiter, (req, res) => {
   const {
     categoria,
     precio_min,
@@ -207,7 +240,7 @@ v2Router.get('/productos', (req, res) => {
   sendResponse(res, respuesta, 200, req.requestedFormat);
 });
 
-v2Router.get('/productos/:id', (req, res) => {
+v2Router.get('/productos/:id', apiLimiter, (req, res) => {
   const id = parseInt(req.params.id);
   const producto = productos.find(p => p.id === id);
 
@@ -221,7 +254,7 @@ v2Router.get('/productos/:id', (req, res) => {
   }, 200, req.requestedFormat);
 });
 
-v2Router.post('/productos', (req, res) => {
+v2Router.post('/productos', apiLimiter, verifyToken, (req, res) => {
   const { nombre, precio, categoria, stock } = req.body;
 
   if (!nombre || !precio) {
@@ -254,7 +287,7 @@ v2Router.post('/productos', (req, res) => {
   }, 201, req.requestedFormat);
 });
 
-v2Router.put('/productos/:id', (req, res) => {
+v2Router.put('/productos/:id', apiLimiter, verifyToken, (req, res) => {
   const id = parseInt(req.params.id);
   const indice = productos.findIndex(p => p.id === id);
 
@@ -286,7 +319,7 @@ v2Router.put('/productos/:id', (req, res) => {
   }, 200, req.requestedFormat);
 });
 
-v2Router.delete('/productos/:id', (req, res) => {
+v2Router.delete('/productos/:id', apiLimiter, verifyToken, (req, res) => {
   const id = parseInt(req.params.id);
   const indice = productos.findIndex(p => p.id === id);
 
