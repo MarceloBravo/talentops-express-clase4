@@ -4,6 +4,8 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const createRateLimiter = require('./middlewares/rate-limit');
 const verifyToken = require('./middlewares/verifiToken');
+const logger = require('./logger');
+
 const app = express();
 app.use(express.json());
 
@@ -105,18 +107,17 @@ app.post('/auth/login', loginLimiter, (req, res) => {
   let usuario = null;
 
   if (email === 'admin@example.com' && password === 'admin123') {
-    //logger.info('Login exitoso', { email, usuarioId: 1 });
     usuario = { id: 1, nombre: 'Admin'};
   } else if (email === 'user@example.com' && password === 'user123') {
-    //logger.info('Login exitoso', { email, usuarioId: 2 });
     usuario = { id: 2, nombre: 'Usuario' };
   } else {
-    //logger.info('Login fallido', { email });
+    logger.info('Login fallido', { email });
     res.status(401).json({ error: 'Credenciales inválidas' });
   }
 
   const token = jwt.sign({id: usuario.id, nombre: usuario.nombre, email}, SECRET_KEY, { expiresIn: '1h' });
   loggedToken = token;
+  logger.info('Login exitoso', { email, usuario});
   res.json({token, usuario});
 });
 
@@ -128,6 +129,8 @@ v1Router.get('/productos', apiLimiter, (req, res) => {
   if (categoria) {
     resultados = resultados.filter(p => p.categoria === categoria);
   }
+
+  logger.info('Listado de productos (API V1)', { categoria });
 
   sendResponse(res, {
     productos: resultados.map(p => ({
@@ -145,6 +148,8 @@ v1Router.get('/productos/:id', apiLimiter, (req, res) => {
   if (!producto) {
     return sendResponse(res, { error: 'Producto no encontrado' }, 404, req.requestedFormat);
   }
+
+  logger.info('Detalle de producto (API V1)', { producto });
 
   sendResponse(res, {
     id: producto.id,
@@ -170,6 +175,7 @@ v1Router.post('/productos', apiLimiter, (req, res) => {
   };
 
   productos.push(nuevoProducto);
+  logger.info('Producto creado (API V1)', { nuevoProducto });
   sendResponse(res, { mensaje: 'Producto creado', producto: nuevoProducto }, 201, req.requestedFormat);
 });
 
@@ -237,6 +243,7 @@ v2Router.get('/productos', apiLimiter, (req, res) => {
     filtros: req.query
   };
 
+  logger.info('Listado de productos', {categoria, precio_min, precio_max, activo, pagina, limite, ordenar});
   sendResponse(res, respuesta, 200, req.requestedFormat);
 });
 
@@ -248,6 +255,7 @@ v2Router.get('/productos/:id', apiLimiter, (req, res) => {
     return sendResponse(res, { error: 'Producto no encontrado' }, 404, req.requestedFormat);
   }
 
+  logger.info('Detalle de producto (API V2)', { producto });
   sendResponse(res, {
     success: true,
     data: producto
@@ -279,7 +287,7 @@ v2Router.post('/productos', apiLimiter, verifyToken, (req, res) => {
   };
 
   productos.push(nuevoProducto);
-
+  logger.info('Producto creado (API V2)', { nuevoProducto });
   sendResponse(res, {
     success: true,
     message: 'Producto creado exitosamente',
@@ -311,7 +319,7 @@ v2Router.put('/productos/:id', apiLimiter, verifyToken, (req, res) => {
     fechaCreacion: productos[indice].fechaCreacion,
     fechaActualizacion: new Date().toISOString()
   };
-
+  logger.info('Producto actualizado (API V2)', { producto: productos[indice] });
   sendResponse(res, {
     success: true,
     message: 'Producto actualizado',
@@ -328,7 +336,7 @@ v2Router.delete('/productos/:id', apiLimiter, verifyToken, (req, res) => {
   }
 
   const productoEliminado = productos.splice(indice, 1)[0];
-
+  logger.info('Producto eliminado (API V2)', { producto: productoEliminado });
   sendResponse(res, {
     success: true,
     message: 'Producto eliminado',
@@ -345,6 +353,7 @@ app.use('/api', v2Router);
 
 // Información de versiones
 app.get('/api/versions', (req, res) => {
+  logger.info('Información de versiones');
   sendResponse(res, {
     versions: {
       v1: {
@@ -369,6 +378,7 @@ app.get('/api/versions', (req, res) => {
 
 // Página de inicio
 app.get('/', (req, res) => {
+  logger.info('Página de inicio');
   const html = `
     <!DOCTYPE html>
     <html>

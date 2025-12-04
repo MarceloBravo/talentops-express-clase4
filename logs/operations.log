@@ -1,0 +1,16 @@
+{"timestamp":"2025-12-04T16:33:43.021Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:34:02.433Z","level":"info","message":"Producto creado (API V2)","meta":{"nuevoProducto":{"id":3,"nombre":"bbbb","precio":1000,"categoria":"cat_1","stock":100,"activo":true,"fechaCreacion":"2025-12-04T16:34:02.433Z"}}}
+{"timestamp":"2025-12-04T16:37:15.863Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:37:23.029Z","level":"info","message":"Login fallido","meta":{"email":"admin@example.com"}}
+{"timestamp":"2025-12-04T16:37:27.414Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:37:44.468Z","level":"info","message":"Producto creado (API V2)","meta":{"nuevoProducto":{"id":4,"nombre":"bbbb","precio":1000,"categoria":"cat_1","stock":100,"activo":true,"fechaCreacion":"2025-12-04T16:37:44.468Z"}}}
+{"timestamp":"2025-12-04T16:39:10.274Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:39:21.840Z","level":"info","message":"Login fallido","meta":{"email":"admin@example.com"}}
+{"timestamp":"2025-12-04T16:39:26.327Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:39:36.890Z","level":"info","message":"Producto creado (API V2)","meta":{"nuevoProducto":{"id":3,"nombre":"bbbb","precio":1000,"categoria":"cat_1","stock":100,"activo":true,"fechaCreacion":"2025-12-04T16:39:36.890Z"}}}
+{"timestamp":"2025-12-04T16:39:42.679Z","level":"info","message":"Usuario no autorizado: token invalido","meta":null}
+{"timestamp":"2025-12-04T16:43:11.384Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
+{"timestamp":"2025-12-04T16:43:22.420Z","level":"info","message":"Producto creado (API V2)","meta":{"nuevoProducto":{"id":3,"nombre":"bbbb","precio":1000,"categoria":"cat_1","stock":100,"activo":true,"fechaCreacion":"2025-12-04T16:43:22.420Z"}}}
+{"timestamp":"2025-12-04T16:43:26.692Z","level":"info","message":"Usuario no autorizado accediendo a /productos token invalido","meta":null}
+{"timestamp":"2025-12-04T16:43:31.657Z","level":"info","message":"Login fallido","meta":{"email":"admin@example.com"}}
+{"timestamp":"2025-12-04T16:43:35.437Z","level":"info","message":"Login exitoso","meta":{"email":"admin@example.com","usuario":{"id":1,"nombre":"Admin"}}}
