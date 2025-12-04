@@ -1,3 +1,8 @@
+/**
+ * Helper para envío de notificaciones por correo electrónico.
+ * Usa `nodemailer` y un transporte configurado por variables de entorno.
+ * @module helpers/webhook
+ */
 const nodemailer = require('nodemailer');
 const logger = require('../logger');
 
@@ -12,6 +17,13 @@ const transporter = nodemailer.createTransport({
 });
 */
 // Configuración del transporte SMTP (ejemplo con hotmail)
+/**
+ * Transporte nodemailer usado para enviar correos.
+ * Los valores sensibles deben provenir de variables de entorno:
+ * - `EMAIL_SENDER`
+ * - `EMAIL_PASSWORD`
+ * @type {import('nodemailer').Transporter}
+ */
 const transporter = nodemailer.createTransport({
   host: "smtp.office365.com",   // Servidor SMTP de Outlook/Hotmail
   port: 587,                    // Puerto TLS
@@ -27,12 +39,24 @@ const transporter = nodemailer.createTransport({
 
 
 
-// Simulación de base de datos de suscriptores
+// Simulación de base de datos de suscriptores (solo para ejemplo/local)
+/**
+ * Lista de clientes de ejemplo para envío de pruebas.
+ * @type {{id: number, nombre: string, email: string}[]}
+ */
 const clientes = [
   { id: 1, nombre: "Jian Pérez", email: "mabc@live.cl" },
   { id: 2, nombre: "Pedro Contreras", email: "email@test.cl" }
 ];
 
+/**
+ * Envía una notificación por correo a un cliente.
+ *
+ * @param {string} evento - Nombre del evento que origina la notificación.
+ * @param {string} data - Detalles o cuerpo del mensaje a incluir en el correo.
+ * @param {number} clienteId - Índice del cliente en la lista `clientes`.
+ * @returns {Promise<void>} Resuelve cuando el envío ha terminado (o maneja el error internamente).
+ */
 async function notificar(evento, data, clienteId){
     try {
         await transporter.sendMail(

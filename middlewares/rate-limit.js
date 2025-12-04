@@ -1,11 +1,18 @@
+/**
+ * Middleware de limitación de velocidad (rate limiting) para Express.
+ * Provee un factory que retorna un middleware configurado usando `express-rate-limit`.
+ *
+ * @module middlewares/rate-limit
+ */
 const rateLimit = require('express-rate-limit');
 
 /**
  * Crea un middleware de limitación de velocidad (rate limiting) para Express.
+ *
  * @param {number} windowMs - La ventana de tiempo en milisegundos para la cual se cuentan las solicitudes.
  * @param {number} max - El número máximo de solicitudes permitidas por IP durante la ventana de tiempo.
  * @param {string | ((req: import('express').Request, res: import('express').Response) => string)} [message] - El mensaje o función para generar el mensaje a enviar cuando se excede el límite.
- * @returns {Function} El middleware de express-rate-limit configurado.
+ * @returns {import('express').RequestHandler} El middleware de express-rate-limit configurado.
  */
 const createRateLimiter = (windowMs, max, message) => {
   return rateLimit({
